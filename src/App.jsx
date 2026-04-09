@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import './styles.css';
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8oQeV0hmEar0KevvLPUsBumFLytsizNyy5BGN1f-3Pc8ML0VH8Mljv_Cvg8HawpmBtQ/exe';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwQNGoQmp8vwJwESuaN3Pai4dZhFbAVP_Ytoc74uz5O5lueQ-dvOCUA-gPhxDICNTP3rQ/exec';
 
 const PLAYER_OPTIONS = [
   'Asher',
