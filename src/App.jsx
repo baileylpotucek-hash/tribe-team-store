@@ -1,11 +1,14 @@
 import { useMemo, useState } from 'react';
+import './styles.css';
+
+const GOOGLE_SCRIPT_URL = 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
 
 const PRODUCTS = [
   {
     id: 't-logo',
     name: 'T Logo Only',
     image: '/images/T Logo Only w_ Variations.png',
-    description: 'Clean team mark decal with multiple variation options.',
+    description: 'Clean team logo decal.',
     basePrices: { small: 5, medium: 8, large: 12 },
     personalization: false,
     badge: 'Team Favorite',
@@ -14,7 +17,7 @@ const PRODUCTS = [
     id: 'tribe-bat',
     name: 'TRIBE w/ Bat',
     image: '/images/TRIBE w_ Bat.png',
-    description: 'Bold wordmark option with athletic styling.',
+    description: 'Bold wordmark decal with athletic styling.',
     basePrices: { small: 6, medium: 9, large: 13 },
     personalization: false,
     badge: 'Classic',
@@ -23,7 +26,7 @@ const PRODUCTS = [
     id: 'tribe-feathers',
     name: 'TRIBE w/ Feathers',
     image: '/images/TRIBE w_ Feathers.png',
-    description: 'Script-style logo option with feather detail.',
+    description: 'Script-style decal with feather detail.',
     basePrices: { small: 6, medium: 9, large: 13 },
     personalization: false,
     badge: 'Popular',
@@ -32,7 +35,7 @@ const PRODUCTS = [
     id: 'tribe-skull',
     name: 'Tribe Skull',
     image: '/images/Tribe Skull.png',
-    description: 'Mascot-style design for fans wanting something bolder.',
+    description: 'Mascot-style option for fans wanting something bolder.',
     basePrices: { small: 7, medium: 10, large: 14 },
     personalization: false,
     badge: 'Bold',
@@ -41,7 +44,7 @@ const PRODUCTS = [
     id: 'solid-plate',
     name: 'Solid Plate',
     image: '/images/Solid Plate w_ Name + Number.png',
-    description: 'Home plate decal that supports player name and number.',
+    description: 'Home plate decal with name and/or number.',
     basePrices: { small: 8, medium: 12, large: 16 },
     personalization: true,
     badge: 'Customizable',
@@ -50,7 +53,7 @@ const PRODUCTS = [
     id: 'transparent-plate',
     name: 'Transparent Plate',
     image: '/images/Transparent Plate w_ Name + Number.png',
-    description: 'Transparent plate-style option with name/number support.',
+    description: 'Transparent plate-style decal with name and/or number.',
     basePrices: { small: 8, medium: 12, large: 16 },
     personalization: true,
     badge: 'Customizable',
@@ -58,9 +61,9 @@ const PRODUCTS = [
 ];
 
 const SIZES = [
-  { id: 'small', label: 'Small (3”)' },
-  { id: 'medium', label: 'Medium (5”)' },
-  { id: 'large', label: 'Large (7”)' },
+  { id: 'small', label: 'Small (3")' },
+  { id: 'medium', label: 'Medium (5")' },
+  { id: 'large', label: 'Large (7")' },
 ];
 
 const BACKGROUNDS = ['Die Cut', 'White Background', 'Black Background'];
@@ -78,8 +81,6 @@ const TEAM_HIGHLIGHTS = [
   'Simple pre-order pickup process',
 ];
 
-const GOOGLE_SCRIPT_URL = 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
-
 function money(value) {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -91,41 +92,67 @@ function getPersonalizationLabel(id) {
   return PERSONALIZATION_OPTIONS.find((option) => option.id === id)?.label ?? 'No personalization';
 }
 
+function makeCartId() {
+  if (window.crypto && window.crypto.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
 function ProductCard({ product, onAdd }) {
   const [size, setSize] = useState('medium');
+  const [quantity, setQuantity] = useState(1);
   const [background, setBackground] = useState('Die Cut');
   const [personalization, setPersonalization] = useState('none');
   const [customName, setCustomName] = useState('');
   const [customNumber, setCustomNumber] = useState('');
-  const [quantity, setQuantity] = useState(1);
 
   const addOn = PERSONALIZATION_OPTIONS.find((option) => option.id === personalization)?.price ?? 0;
   const unitPrice = (product.basePrices[size] ?? 0) + addOn;
+  const itemTotal = unitPrice * quantity;
+
+  function handleAdd() {
+    onAdd({
+      cartId: makeCartId(),
+      productId: product.id,
+      name: product.name,
+      image: product.image,
+      size,
+      quantity,
+      background,
+      personalization,
+      customName,
+      customNumber,
+      unitPrice,
+      total: itemTotal,
+    });
+
+    setQuantity(1);
+    setBackground('Die Cut');
+    setPersonalization('none');
+    setCustomName('');
+    setCustomNumber('');
+  }
 
   return (
-    <div className="overflow-hidden rounded-[28px] border border-slate-800 bg-slate-900/70 shadow-xl shadow-sky-950/20">
-      <div className="aspect-[1/1] bg-slate-950">
-        <img src={product.image} alt={product.name} className="h-full w-full object-contain p-4" />
+    <div className="product-card">
+      <div className="product-image-wrap">
+        <img src={product.image} alt={product.name} className="product-image" />
       </div>
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-3">
+
+      <div className="product-body">
+        <div className="product-head">
           <div>
-            <div className="text-lg font-bold text-white">{product.name}</div>
-            <p className="mt-1 text-sm leading-6 text-slate-300">{product.description}</p>
+            <h3>{product.name}</h3>
+            <p className="product-description">{product.description}</p>
           </div>
-          <span className="rounded-full bg-sky-400/15 px-3 py-1 text-xs font-semibold text-sky-200">
-            {product.badge}
-          </span>
+          <span className="badge">{product.badge}</span>
         </div>
 
-        <div className="mt-5 grid gap-4">
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-200">Size</span>
-            <select
-              value={size}
-              onChange={(e) => setSize(e.target.value)}
-              className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300"
-            >
+        <div className="product-fields">
+          <label>
+            <span>Size</span>
+            <select value={size} onChange={(e) => setSize(e.target.value)}>
               {SIZES.map((option) => (
                 <option key={option.id} value={option.id}>
                   {option.label}
@@ -134,44 +161,33 @@ function ProductCard({ product, onAdd }) {
             </select>
           </label>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-slate-200">Quantity</span>
-              <input
-                type="number"
-                min="1"
-                max="25"
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
-                className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300"
-              />
-            </label>
+          <label>
+            <span>Quantity</span>
+            <input
+              type="number"
+              min="1"
+              max="25"
+              value={quantity}
+              onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
+            />
+          </label>
 
-            <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-slate-200">Background</span>
-              <select
-                value={background}
-                onChange={(e) => setBackground(e.target.value)}
-                className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300"
-              >
-                {BACKGROUNDS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+          <label>
+            <span>Background</span>
+            <select value={background} onChange={(e) => setBackground(e.target.value)}>
+              {BACKGROUNDS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          {product.personalization ? (
+          {product.personalization && (
             <>
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-200">Personalization</span>
-                <select
-                  value={personalization}
-                  onChange={(e) => setPersonalization(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300"
-                >
+              <label>
+                <span>Personalization</span>
+                <select value={personalization} onChange={(e) => setPersonalization(e.target.value)}>
                   {PERSONALIZATION_OPTIONS.map((option) => (
                     <option key={option.id} value={option.id}>
                       {option.label}
@@ -180,57 +196,37 @@ function ProductCard({ product, onAdd }) {
                 </select>
               </label>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <label className="block">
-                  <span className="mb-2 block text-sm font-semibold text-slate-200">Custom name</span>
-                  <input
-                    value={customName}
-                    onChange={(e) => setCustomName(e.target.value)}
-                    disabled={personalization === 'none' || personalization === 'number'}
-                    placeholder="Potucek"
-                    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300 disabled:opacity-50"
-                  />
-                </label>
+              <label>
+                <span>Custom Name</span>
+                <input
+                  type="text"
+                  placeholder="Potucek"
+                  value={customName}
+                  disabled={personalization === 'none' || personalization === 'number'}
+                  onChange={(e) => setCustomName(e.target.value)}
+                />
+              </label>
 
-                <label className="block">
-                  <span className="mb-2 block text-sm font-semibold text-slate-200">Custom number</span>
-                  <input
-                    value={customNumber}
-                    onChange={(e) => setCustomNumber(e.target.value)}
-                    disabled={personalization === 'none' || personalization === 'name'}
-                    placeholder="16"
-                    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300 disabled:opacity-50"
-                  />
-                </label>
-              </div>
+              <label>
+                <span>Custom Number</span>
+                <input
+                  type="text"
+                  placeholder="16"
+                  value={customNumber}
+                  disabled={personalization === 'none' || personalization === 'name'}
+                  onChange={(e) => setCustomNumber(e.target.value)}
+                />
+              </label>
             </>
-          ) : null}
+          )}
         </div>
 
-        <div className="mt-5 flex items-center justify-between gap-3 rounded-2xl bg-slate-950/80 px-4 py-3">
+        <div className="product-footer">
           <div>
-            <div className="text-sm text-slate-400">Item total</div>
-            <div className="text-lg font-bold text-white">{money(unitPrice * quantity)}</div>
+            <div className="muted">Item total</div>
+            <div className="price">{money(itemTotal)}</div>
           </div>
-          <button
-            type="button"
-            onClick={() =>
-              onAdd({
-                productId: product.id,
-                name: product.name,
-                image: product.image,
-                size,
-                background,
-                personalization,
-                customName,
-                customNumber,
-                quantity,
-                unitPrice,
-                total: unitPrice * quantity,
-              })
-            }
-            className="rounded-2xl bg-sky-400 px-4 py-3 font-semibold text-slate-950 transition hover:scale-[1.02]"
-          >
+          <button type="button" className="primary-btn" onClick={handleAdd}>
             Add to Cart
           </button>
         </div>
@@ -239,188 +235,322 @@ function ProductCard({ product, onAdd }) {
   );
 }
 
-export default function TribeTeamStoreWebsite() {
+export default function App() {
+  const [showOptions, setShowOptions] = useState(false);
+  const [cart, setCart] = useState([]);
+  const [buyerName, setBuyerName] = useState('');
+  const [buyerEmail, setBuyerEmail] = useState('');
+  const [buyerPhone, setBuyerPhone] = useState('');
+  const [playerName, setPlayerName] = useState('');
+  const [notes, setNotes] = useState('');
+  const [status, setStatus] = useState('idle');
+  const [message, setMessage] = useState('');
+
+  const cartCount = useMemo(
+    () => cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0),
+    [cart]
+  );
+
+  const cartTotal = useMemo(
+    () => cart.reduce((sum, item) => sum + Number(item.total || 0), 0),
+    [cart]
+  );
+
+  function addToCart(item) {
+    setCart((current) => [...current, item]);
+    setShowOptions(true);
+    setMessage('');
+    setStatus('idle');
+
+    setTimeout(() => {
+      document.getElementById('cart-section')?.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
+  }
+
+  function removeFromCart(cartId) {
+    setCart((current) => current.filter((item) => item.cartId !== cartId));
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    if (!cart.length) {
+      setStatus('error');
+      setMessage('Please add at least one item to your cart.');
+      return;
+    }
+
+    if (!buyerName || !buyerEmail || !buyerPhone) {
+      setStatus('error');
+      setMessage('Please complete your buyer information.');
+      return;
+    }
+
+    const payload = {
+      submittedAt: new Date().toISOString(),
+      buyerName,
+      buyerEmail,
+      buyerPhone,
+      playerName,
+      notes,
+      total: cartTotal,
+      items: cart.map((item) => ({
+        design: item.name,
+        size: SIZES.find((option) => option.id === item.size)?.label ?? item.size,
+        quantity: item.quantity,
+        background: item.background,
+        personalization: getPersonalizationLabel(item.personalization),
+        customName: item.customName,
+        customNumber: item.customNumber,
+        unitPrice: item.unitPrice,
+        total: item.total,
+      })),
+    };
+
+    if (GOOGLE_SCRIPT_URL === 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
+      setStatus('error');
+      setMessage('Add your Google Apps Script URL in App.jsx before using live submission.');
+      return;
+    }
+
+    try {
+      setStatus('loading');
+      setMessage('Submitting your pre-order...');
+
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error('Request failed');
+      }
+
+      setStatus('success');
+      setMessage('Pre-order submitted successfully.');
+      setCart([]);
+      setBuyerName('');
+      setBuyerEmail('');
+      setBuyerPhone('');
+      setPlayerName('');
+      setNotes('');
+    } catch (error) {
+      setStatus('error');
+      setMessage('Something went wrong while sending your order.');
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <section className="relative overflow-hidden border-b border-white/10 bg-gradient-to-br from-slate-950 via-slate-950 to-sky-950/40">
-        <div className="mx-auto max-w-7xl px-6 py-20 md:py-24">
-          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-            <div>
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-sky-300">
-                Clearwater Tribe Baseball
-              </p>
-              <h1 className="text-4xl font-black tracking-tight md:text-6xl">
-                Decals for players, families, and fans.
-              </h1>
-              <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 md:text-lg">
-                Welcome to the Clearwater Tribe team store. Browse decal options, add what you want to your cart,
-                and submit one clean pre-order at checkout.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                {TEAM_HIGHLIGHTS.map((item) => (
-                  <span key={item} className="rounded-full border border-sky-400/20 bg-sky-400/10 px-4 py-2 text-sm font-medium text-sky-100">
-                    {item}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-10 flex flex-wrap gap-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowOptions(true);
-                    setTimeout(() => {
-                      document.getElementById('options-section')?.scrollIntoView({ behavior: 'smooth' });
-                    }, 50);
-                  }}
-                  className="rounded-2xl bg-sky-400 px-6 py-4 text-base font-semibold text-slate-950 transition hover:scale-[1.02]"
-                >
-                  See Options Now
-                </button>
-                <a href="#cart-section" className="rounded-2xl border border-white/15 px-6 py-4 text-base font-semibold text-white transition hover:bg-white/5">
-                  View Cart {cartCount ? `(${cartCount})` : ''}
-                </a>
-              </div>
+    <div className="store-page">
+      <section className="hero-section">
+        <div className="container hero-grid">
+          <div>
+            <p className="eyebrow">Clearwater Tribe Baseball</p>
+            <h1>Decals for players, families, and fans.</h1>
+            <p className="hero-copy">
+              Welcome to the Clearwater Tribe team store. Browse decal options,
+              add what you want to your cart, and submit one clean pre-order at checkout.
+            </p>
+
+            <div className="pill-row">
+              {TEAM_HIGHLIGHTS.map((item) => (
+                <span key={item} className="pill">
+                  {item}
+                </span>
+              ))}
             </div>
 
-            <div className="rounded-[28px] border border-white/10 bg-white/5 p-5 shadow-2xl">
-              <div className="grid grid-cols-2 gap-4">
-                {PRODUCTS.slice(0, 4).map((product) => (
-                  <div key={product.id} className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900/80">
-                    <div className="aspect-square bg-slate-950 p-3">
-                      <img src={product.image} alt={product.name} className="h-full w-full object-contain" />
-                    </div>
-                    <div className="p-3">
-                      <div className="text-sm font-bold">{product.name}</div>
-                      <div className="mt-1 text-xs text-slate-400">From {money(product.basePrices.medium)}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="hero-actions">
+              <button
+                type="button"
+                className="primary-btn"
+                onClick={() => {
+                  setShowOptions(true);
+                  setTimeout(() => {
+                    document.getElementById('options-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 50);
+                }}
+              >
+                See Options Now
+              </button>
+
+              <a href="#cart-section" className="secondary-btn">
+                View Cart {cartCount ? `(${cartCount})` : ''}
+              </a>
             </div>
+          </div>
+
+          <div className="hero-preview-grid">
+            {PRODUCTS.slice(0, 4).map((product) => (
+              <div key={product.id} className="hero-preview-card">
+                <div className="hero-preview-image">
+                  <img src={product.image} alt={product.name} />
+                </div>
+                <div className="hero-preview-text">
+                  <strong>{product.name}</strong>
+                  <span>From {money(product.basePrices.medium)}</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {showOptions ? (
-        <section id="options-section" className="mx-auto max-w-7xl px-6 py-16">
-          <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-300">Shop Options</p>
-              <h2 className="mt-2 text-3xl font-black md:text-4xl">Choose your decal style</h2>
+      {showOptions && (
+        <section id="options-section" className="section">
+          <div className="container">
+            <div className="section-head">
+              <div>
+                <p className="eyebrow">Shop Options</p>
+                <h2>Choose your decal style</h2>
+              </div>
+              <p className="section-copy">
+                Three across, simple to browse, and easy to add to cart.
+              </p>
             </div>
-            <p className="max-w-2xl text-sm leading-6 text-slate-300 md:text-base">
-              Simple grid layout. Add items to your cart, then complete buyer details once at checkout.
-            </p>
-          </div>
 
-          <div className="grid gap-6 lg:grid-cols-3">
-            {PRODUCTS.map((product) => (
-              <ProductCard key={product.id} product={product} onAdd={addToCart} />
-            ))}
+            <div className="product-grid">
+              {PRODUCTS.map((product) => (
+                <ProductCard key={product.id} product={product} onAdd={addToCart} />
+              ))}
+            </div>
           </div>
         </section>
-      ) : null}
+      )}
 
-      <section id="cart-section" className="border-t border-slate-800 bg-slate-900/40">
-        <div className="mx-auto grid max-w-7xl gap-8 px-6 py-16 lg:grid-cols-[0.95fr_1.05fr]">
-          <div className="rounded-[30px] border border-slate-800 bg-slate-950/70 p-6 shadow-xl shadow-sky-950/10">
-            <div className="flex items-center justify-between gap-3">
+      <section id="cart-section" className="section section-alt">
+        <div className="container checkout-grid">
+          <div className="cart-panel">
+            <div className="panel-head">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-300">Cart</p>
-                <h2 className="mt-2 text-3xl font-black">Your selections</h2>
+                <p className="eyebrow">Cart</p>
+                <h2>Your selections</h2>
               </div>
-              <span className="rounded-full bg-sky-400/15 px-3 py-1 text-sm font-semibold text-sky-200">
+              <span className="count-badge">
                 {cartCount} item{cartCount === 1 ? '' : 's'}
               </span>
             </div>
 
-            <div className="mt-6 space-y-4">
+            <div className="cart-list">
               {cart.length ? (
                 cart.map((item) => (
-                  <div key={item.cartId} className="rounded-3xl border border-slate-800 bg-slate-900/80 p-4">
-                    <div className="flex gap-4">
-                      <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-slate-950">
-                        <img src={item.image} alt={item.name} className="h-full w-full object-contain p-2" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <div className="text-base font-bold text-white">{item.name}</div>
-                            <div className="mt-1 text-sm text-slate-400">
-                              {SIZES.find((option) => option.id === item.size)?.label} · Qty {item.quantity}
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-base font-bold text-white">{money(item.total)}</div>
-                            <button type="button" onClick={() => removeFromCart(item.cartId)} className="mt-2 text-xs font-semibold text-rose-300 hover:text-rose-200">
-                              Remove
-                            </button>
+                  <div key={item.cartId} className="cart-item">
+                    <div className="cart-item-image">
+                      <img src={item.image} alt={item.name} />
+                    </div>
+
+                    <div className="cart-item-body">
+                      <div className="cart-item-top">
+                        <div>
+                          <strong>{item.name}</strong>
+                          <div className="muted">
+                            {SIZES.find((option) => option.id === item.size)?.label} · Qty {item.quantity}
                           </div>
                         </div>
-                        <div className="mt-3 grid gap-1 text-sm text-slate-300">
-                          <div>Background: {item.background}</div>
-                          <div>Personalization: {getPersonalizationLabel(item.personalization)}</div>
-                          {item.customName ? <div>Name: {item.customName}</div> : null}
-                          {item.customNumber ? <div>Number: {item.customNumber}</div> : null}
-                        </div>
+                        <div className="cart-item-price">{money(item.total)}</div>
                       </div>
+
+                      <div className="cart-meta">
+                        <div>Background: {item.background}</div>
+                        <div>Personalization: {getPersonalizationLabel(item.personalization)}</div>
+                        {item.customName ? <div>Name: {item.customName}</div> : null}
+                        {item.customNumber ? <div>Number: {item.customNumber}</div> : null}
+                      </div>
+
+                      <button
+                        type="button"
+                        className="remove-btn"
+                        onClick={() => removeFromCart(item.cartId)}
+                      >
+                        Remove
+                      </button>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-950/50 p-8 text-center text-slate-400">
-                  Your cart is empty. Click <span className="font-semibold text-slate-200">See Options Now</span> to start building your order.
+                <div className="empty-cart">
+                  Your cart is empty. Click <strong>See Options Now</strong> to start.
                 </div>
               )}
             </div>
 
-            <div className="mt-6 rounded-3xl bg-slate-900/90 p-5">
-              <div className="flex items-center justify-between text-sm text-slate-400">
-                <span>Pre-order total</span>
-                <span className="text-xl font-bold text-white">{money(cartTotal)}</span>
-              </div>
+            <div className="cart-total">
+              <span>Pre-order total</span>
+              <strong>{money(cartTotal)}</strong>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="rounded-[30px] border border-slate-800 bg-slate-950/70 p-6 shadow-xl shadow-sky-950/10">
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-300">Checkout</p>
-            <h2 className="mt-2 text-3xl font-black">Submit your pre-order</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-300">
-              Complete your contact details once and send the full cart to your order sheet.
+          <form className="checkout-panel" onSubmit={handleSubmit}>
+            <p className="eyebrow">Checkout</p>
+            <h2>Submit your pre-order</h2>
+            <p className="section-copy">
+              Complete your details once and send the full cart to your Google Sheet.
             </p>
 
-            <div className="mt-8 grid gap-5 md:grid-cols-2">
-              <label className="block md:col-span-2">
-                <span className="mb-2 block text-sm font-semibold text-slate-200">Parent / Buyer Name *</span>
-                <input value={buyerName} onChange={(e) => setBuyerName(e.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300" placeholder="Full name" />
+            <div className="form-grid">
+              <label className="full">
+                <span>Parent / Buyer Name *</span>
+                <input
+                  type="text"
+                  value={buyerName}
+                  onChange={(e) => setBuyerName(e.target.value)}
+                  placeholder="Full name"
+                />
               </label>
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-200">Email *</span>
-                <input type="email" value={buyerEmail} onChange={(e) => setBuyerEmail(e.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300" placeholder="name@email.com" />
+
+              <label>
+                <span>Email *</span>
+                <input
+                  type="email"
+                  value={buyerEmail}
+                  onChange={(e) => setBuyerEmail(e.target.value)}
+                  placeholder="name@email.com"
+                />
               </label>
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-200">Phone *</span>
-                <input value={buyerPhone} onChange={(e) => setBuyerPhone(e.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300" placeholder="(555) 555-5555" />
+
+              <label>
+                <span>Phone *</span>
+                <input
+                  type="text"
+                  value={buyerPhone}
+                  onChange={(e) => setBuyerPhone(e.target.value)}
+                  placeholder="(555) 555-5555"
+                />
               </label>
-              <label className="block md:col-span-2">
-                <span className="mb-2 block text-sm font-semibold text-slate-200">Player Name</span>
-                <input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300" placeholder="Player name if applicable" />
+
+              <label className="full">
+                <span>Player Name</span>
+                <input
+                  type="text"
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  placeholder="Player name if applicable"
+                />
               </label>
-              <label className="block md:col-span-2">
-                <span className="mb-2 block text-sm font-semibold text-slate-200">Notes</span>
-                <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={4} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300" placeholder="Anything we should know about your order" />
+
+              <label className="full">
+                <span>Notes</span>
+                <textarea
+                  rows="4"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Anything we should know about your order"
+                />
               </label>
             </div>
 
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <button type="submit" className="rounded-2xl bg-sky-400 px-6 py-4 text-base font-semibold text-slate-950 transition hover:scale-[1.02]">
+            <div className="checkout-actions">
+              <button type="submit" className="primary-btn">
                 Submit Pre-Order
               </button>
-              <div className="text-sm text-slate-400">Total: <span className="font-bold text-white">{money(cartTotal)}</span></div>
+              <div className="checkout-total">
+                Total: <strong>{money(cartTotal)}</strong>
+              </div>
             </div>
 
             {message ? (
-              <div className={`mt-5 rounded-2xl px-4 py-3 text-sm ${status === 'success' ? 'border border-emerald-400/30 bg-emerald-500/10 text-emerald-200' : status === 'loading' ? 'border border-sky-400/30 bg-sky-500/10 text-sky-200' : 'border border-rose-400/30 bg-rose-500/10 text-rose-200'}`}>
+              <div className={`status-box ${status}`}>
                 {message}
               </div>
             ) : null}
