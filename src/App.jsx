@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import './styles.css';
 
 const GOOGLE_SCRIPT_URL = 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
@@ -12,6 +12,12 @@ const PRODUCTS = [
     basePrices: { small: 5, medium: 8, large: 12 },
     personalization: false,
     badge: 'Team Favorite',
+    colors: [
+      'Columbia Blue',
+      'Light Baby Blue',
+      'Clearwater Blue',
+      'Light Blue w/ White',
+    ],
   },
   {
     id: 'tribe-bat',
@@ -106,6 +112,7 @@ function ProductCard({ product, onAdd }) {
   const [personalization, setPersonalization] = useState('none');
   const [customName, setCustomName] = useState('');
   const [customNumber, setCustomNumber] = useState('');
+  const [selectedColor, setSelectedColor] = useState(product.colors?.[0] || '');
 
   const addOn = PERSONALIZATION_OPTIONS.find((option) => option.id === personalization)?.price ?? 0;
   const unitPrice = (product.basePrices[size] ?? 0) + addOn;
@@ -120,6 +127,7 @@ function ProductCard({ product, onAdd }) {
       size,
       quantity,
       background,
+      selectedColor,
       personalization,
       customName,
       customNumber,
@@ -132,6 +140,7 @@ function ProductCard({ product, onAdd }) {
     setPersonalization('none');
     setCustomName('');
     setCustomNumber('');
+    setSelectedColor(product.colors?.[0] || '');
   }
 
   return (
@@ -182,6 +191,19 @@ function ProductCard({ product, onAdd }) {
               ))}
             </select>
           </label>
+
+          {product.id === 't-logo' && product.colors ? (
+            <label>
+              <span>Color</span>
+              <select value={selectedColor} onChange={(e) => setSelectedColor(e.target.value)}>
+                {product.colors.map((color) => (
+                  <option key={color} value={color}>
+                    {color}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
 
           {product.personalization && (
             <>
@@ -245,6 +267,7 @@ export default function App() {
   const [notes, setNotes] = useState('');
   const [status, setStatus] = useState('idle');
   const [message, setMessage] = useState('');
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   const cartCount = useMemo(
     () => cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0),
@@ -255,6 +278,14 @@ export default function App() {
     () => cart.reduce((sum, item) => sum + Number(item.total || 0), 0),
     [cart]
   );
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % PRODUCTS.length);
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   function addToCart(item) {
     setCart((current) => [...current, item]);
@@ -299,6 +330,7 @@ export default function App() {
         size: SIZES.find((option) => option.id === item.size)?.label ?? item.size,
         quantity: item.quantity,
         background: item.background,
+        color: item.selectedColor || '',
         personalization: getPersonalizationLabel(item.personalization),
         customName: item.customName,
         customNumber: item.customNumber,
@@ -381,18 +413,31 @@ export default function App() {
             </div>
           </div>
 
-          <div className="hero-preview-grid">
-            {PRODUCTS.slice(0, 4).map((product) => (
-              <div key={product.id} className="hero-preview-card">
-                <div className="hero-preview-image">
-                  <img src={product.image} alt={product.name} />
-                </div>
-                <div className="hero-preview-text">
-                  <strong>{product.name}</strong>
-                  <span>From {money(product.basePrices.medium)}</span>
-                </div>
+          <div className="hero-slideshow">
+            <div className="hero-slideshow-card">
+              <div className="hero-slideshow-image">
+                <img
+                  src={PRODUCTS[currentSlide].image}
+                  alt={PRODUCTS[currentSlide].name}
+                />
               </div>
-            ))}
+              <div className="hero-slideshow-text">
+                <strong>{PRODUCTS[currentSlide].name}</strong>
+                <span>From {money(PRODUCTS[currentSlide].basePrices.medium)}</span>
+              </div>
+            </div>
+
+            <div className="hero-dots">
+              {PRODUCTS.map((product, index) => (
+                <button
+                  key={product.id}
+                  type="button"
+                  className={`hero-dot ${index === currentSlide ? 'active' : ''}`}
+                  onClick={() => setCurrentSlide(index)}
+                  aria-label={`Show ${product.name}`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -453,6 +498,7 @@ export default function App() {
 
                       <div className="cart-meta">
                         <div>Background: {item.background}</div>
+                        {item.selectedColor ? <div>Color: {item.selectedColor}</div> : null}
                         <div>Personalization: {getPersonalizationLabel(item.personalization)}</div>
                         {item.customName ? <div>Name: {item.customName}</div> : null}
                         {item.customNumber ? <div>Number: {item.customNumber}</div> : null}
