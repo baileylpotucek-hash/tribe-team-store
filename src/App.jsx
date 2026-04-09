@@ -18,21 +18,6 @@ const PLAYER_OPTIONS = [
   'Ross',
 ];
 
-const PLAYER_T_LOGO_IMAGES = {
-  Asher: '/images/Asher T Logo.png',
-  Avila: '/images/Avila T Logo.png',
-  Bjostad: '/images/Bjostad T Logo.png',
-  Cooper: '/images/Cooper T Logo.png',
-  Dingman: '/images/Dingman T Logo.png',
-  Mercer: '/images/Mercer T Logo.png',
-  Nichols: '/images/Nichols T Logo.png',
-  Owens: '/images/Owens T Logo.png',
-  Palmer: '/images/Palmer T Logo.png',
-  Pineda: '/images/Pineda T Logo.png',
-  Potucek: '/images/Potucek T Logo.png',
-  Ross: '/images/Ross T Logo.png',
-};
-
 const PRODUCTS = [
   {
     id: 't-logo',
@@ -46,7 +31,7 @@ const PRODUCTS = [
   {
     id: 't-logo-player',
     name: 'T Logo w/ Variation',
-    image: '/images/T Logo Only w_ Variations.png',
+    image: '/images/T Logo w_ Variation Example - Name + Number.png',
     description: 'Columbia Blue T logo customized by player with name, number, or both.',
     basePrices: { small: 7, medium: 10, large: 14 },
     personalization: true,
@@ -140,12 +125,28 @@ function makeCartId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+function getPlayerVariationImage(player, personalization) {
+  if (!player) {
+    return '/images/T Logo w_ Variation Example - Name + Number.png';
+  }
+
+  if (personalization === 'name') {
+    return `/images/${player} - Name.png`;
+  }
+
+  if (personalization === 'number') {
+    return `/images/${player} - Number.png`;
+  }
+
+  return `/images/${player} - Name + Number.png`;
+}
+
 function ProductCard({ product, onAdd }) {
   const [size, setSize] = useState('medium');
   const [quantity, setQuantity] = useState(1);
   const [background, setBackground] = useState('Die Cut');
   const [personalization, setPersonalization] = useState(
-    product.playerSelection ? 'name' : 'none'
+    product.playerSelection ? 'name-number' : 'none'
   );
   const [customName, setCustomName] = useState('');
   const [customNumber, setCustomNumber] = useState('');
@@ -161,10 +162,9 @@ function ProductCard({ product, onAdd }) {
   const unitPrice = (product.basePrices[size] ?? 0) + addOn;
   const itemTotal = unitPrice * quantity;
 
-  const displayImage =
-    product.playerSelection && selectedPlayer && PLAYER_T_LOGO_IMAGES[selectedPlayer]
-      ? PLAYER_T_LOGO_IMAGES[selectedPlayer]
-      : product.image;
+  const displayImage = product.playerSelection
+    ? getPlayerVariationImage(selectedPlayer, personalization)
+    : product.image;
 
   function handleAdd() {
     onAdd({
@@ -189,7 +189,7 @@ function ProductCard({ product, onAdd }) {
     setCustomName('');
     setCustomNumber('');
     setSelectedPlayer('');
-    setPersonalization(product.playerSelection ? 'name' : 'none');
+    setPersonalization(product.playerSelection ? 'name-number' : 'none');
   }
 
   return (
