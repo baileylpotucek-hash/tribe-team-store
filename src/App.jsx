@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import './styles.css';
 
-const GOOGLE_SCRIPT_URL = 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8oQeV0hmEar0KevvLPUsBumFLytsizNyy5BGN1f-3Pc8ML0VH8Mljv_Cvg8HawpmBtQ/exec';
 
 const PRODUCTS = [
   {
