@@ -381,8 +381,8 @@ export default function App() {
             <p className="eyebrow">Clearwater Tribe Baseball</p>
             <h1>Decals for players, families, and fans.</h1>
             <p className="hero-copy">
-              Welcome to the Clearwater Tribe team store. Browse decal options,
-              add what you want to your cart, and submit one clean pre-order at checkout.
+              Welcome to the Clearwater Tribe team store. Click the 'See Options Now' Button to browse decal options,
+              add what you want to your cart, and submit your pre-order at checkout.
             </p>
 
             <div className="pill-row">
@@ -450,7 +450,7 @@ export default function App() {
                 <h2>Choose your decal style</h2>
               </div>
               <p className="section-copy">
-                Three across, simple to browse, and easy to add to cart.
+                Select the decals you prefer and add to the cart.
               </p>
             </div>
 
