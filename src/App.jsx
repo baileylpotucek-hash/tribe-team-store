@@ -1,7 +1,22 @@
 import { useEffect, useMemo, useState } from 'react';
 import './styles.css';
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8oQeV0hmEar0KevvLPUsBumFLytsizNyy5BGN1f-3Pc8ML0VH8Mljv_Cvg8HawpmBtQ/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8oQeV0hmEar0KevvLPUsBumFLytsizNyy5BGN1f-3Pc8ML0VH8Mljv_Cvg8HawpmBtQ/exe';
+
+const PLAYER_OPTIONS = [
+  'Asher',
+  'Avila',
+  'Bjostad',
+  'Cooper',
+  'Dingman',
+  'Mercer',
+  'Nichols',
+  'Owens',
+  'Palmer',
+  'Pineda',
+  'Potucek',
+  'Ross',
+];
 
 const PRODUCTS = [
   {
@@ -12,12 +27,17 @@ const PRODUCTS = [
     basePrices: { small: 5, medium: 8, large: 12 },
     personalization: false,
     badge: 'Team Favorite',
-    colors: [
-      'Columbia Blue',
-      'Light Baby Blue',
-      'Clearwater Blue',
-      'Light Blue w/ White',
-    ],
+  },
+  {
+    id: 't-logo-player',
+    name: 'T Logo Player Custom',
+    image: '/images/T Logo Only w_ Variations.png',
+    description: 'Columbia Blue T logo customized by player with name, number, or both.',
+    basePrices: { small: 7, medium: 10, large: 14 },
+    personalization: true,
+    badge: 'Player Custom',
+    fixedColor: 'Columbia Blue',
+    playerSelection: true,
   },
   {
     id: 'tribe-bat',
@@ -109,12 +129,20 @@ function ProductCard({ product, onAdd }) {
   const [size, setSize] = useState('medium');
   const [quantity, setQuantity] = useState(1);
   const [background, setBackground] = useState('Die Cut');
-  const [personalization, setPersonalization] = useState('none');
+  const [personalization, setPersonalization] = useState(
+    product.playerSelection ? 'name' : 'none'
+  );
   const [customName, setCustomName] = useState('');
   const [customNumber, setCustomNumber] = useState('');
-  const [selectedColor, setSelectedColor] = useState(product.colors?.[0] || '');
+  const [selectedPlayer, setSelectedPlayer] = useState('');
 
-  const addOn = PERSONALIZATION_OPTIONS.find((option) => option.id === personalization)?.price ?? 0;
+  const personalizationChoices = product.playerSelection
+    ? PERSONALIZATION_OPTIONS.filter((option) => option.id !== 'none')
+    : PERSONALIZATION_OPTIONS;
+
+  const addOn =
+    PERSONALIZATION_OPTIONS.find((option) => option.id === personalization)?.price ?? 0;
+
   const unitPrice = (product.basePrices[size] ?? 0) + addOn;
   const itemTotal = unitPrice * quantity;
 
@@ -127,7 +155,8 @@ function ProductCard({ product, onAdd }) {
       size,
       quantity,
       background,
-      selectedColor,
+      selectedColor: product.fixedColor || '',
+      selectedPlayer,
       personalization,
       customName,
       customNumber,
@@ -137,10 +166,10 @@ function ProductCard({ product, onAdd }) {
 
     setQuantity(1);
     setBackground('Die Cut');
-    setPersonalization('none');
     setCustomName('');
     setCustomNumber('');
-    setSelectedColor(product.colors?.[0] || '');
+    setSelectedPlayer('');
+    setPersonalization(product.playerSelection ? 'name' : 'none');
   }
 
   return (
@@ -192,32 +221,42 @@ function ProductCard({ product, onAdd }) {
             </select>
           </label>
 
-          {product.id === 't-logo' && product.colors ? (
-            <label>
-              <span>Color</span>
-              <select value={selectedColor} onChange={(e) => setSelectedColor(e.target.value)}>
-                {product.colors.map((color) => (
-                  <option key={color} value={color}>
-                    {color}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ) : null}
-
-          {product.personalization && (
+          {product.playerSelection ? (
             <>
               <label>
-                <span>Personalization</span>
-                <select value={personalization} onChange={(e) => setPersonalization(e.target.value)}>
-                  {PERSONALIZATION_OPTIONS.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {option.label}
+                <span>Color</span>
+                <input type="text" value={product.fixedColor} disabled />
+              </label>
+
+              <label>
+                <span>Player</span>
+                <select value={selectedPlayer} onChange={(e) => setSelectedPlayer(e.target.value)}>
+                  <option value="">Select player</option>
+                  {PLAYER_OPTIONS.map((player) => (
+                    <option key={player} value={player}>
+                      {player}
                     </option>
                   ))}
                 </select>
               </label>
+            </>
+          ) : null}
 
+          {product.personalization && (
+            <label>
+              <span>Personalization</span>
+              <select value={personalization} onChange={(e) => setPersonalization(e.target.value)}>
+                {personalizationChoices.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+
+          {!product.playerSelection && product.personalization ? (
+            <>
               <label>
                 <span>Custom Name</span>
                 <input
@@ -240,7 +279,7 @@ function ProductCard({ product, onAdd }) {
                 />
               </label>
             </>
-          )}
+          ) : null}
         </div>
 
         <div className="product-footer">
@@ -248,7 +287,12 @@ function ProductCard({ product, onAdd }) {
             <div className="muted">Item total</div>
             <div className="price">{money(itemTotal)}</div>
           </div>
-          <button type="button" className="primary-btn" onClick={handleAdd}>
+          <button
+            type="button"
+            className="primary-btn"
+            onClick={handleAdd}
+            disabled={product.playerSelection && !selectedPlayer}
+          >
             Add to Cart
           </button>
         </div>
@@ -327,6 +371,7 @@ export default function App() {
       total: cartTotal,
       items: cart.map((item) => ({
         design: item.name,
+        player: item.selectedPlayer || '',
         size: SIZES.find((option) => option.id === item.size)?.label ?? item.size,
         quantity: item.quantity,
         background: item.background,
@@ -381,8 +426,8 @@ export default function App() {
             <p className="eyebrow">Clearwater Tribe Baseball</p>
             <h1>Decals for players, families, and fans.</h1>
             <p className="hero-copy">
-              Welcome to the Clearwater Tribe team store. Click the 'See Options Now' Button to browse decal options,
-              add what you want to your cart, and submit your pre-order at checkout.
+              Welcome to the Clearwater Tribe team store. Browse decal options,
+              add what you want to your cart, and submit one clean pre-order at checkout.
             </p>
 
             <div className="pill-row">
@@ -416,10 +461,7 @@ export default function App() {
           <div className="hero-slideshow">
             <div className="hero-slideshow-card">
               <div className="hero-slideshow-image">
-                <img
-                  src={PRODUCTS[currentSlide].image}
-                  alt={PRODUCTS[currentSlide].name}
-                />
+                <img src={PRODUCTS[currentSlide].image} alt={PRODUCTS[currentSlide].name} />
               </div>
               <div className="hero-slideshow-text">
                 <strong>{PRODUCTS[currentSlide].name}</strong>
@@ -450,7 +492,7 @@ export default function App() {
                 <h2>Choose your decal style</h2>
               </div>
               <p className="section-copy">
-                Select the decals you prefer and add to the cart.
+                Three across, simple to browse, and easy to add to cart.
               </p>
             </div>
 
@@ -496,6 +538,7 @@ export default function App() {
                       </div>
 
                       <div className="cart-meta">
+                        {item.selectedPlayer ? <div>Player: {item.selectedPlayer}</div> : null}
                         <div>Background: {item.background}</div>
                         {item.selectedColor ? <div>Color: {item.selectedColor}</div> : null}
                         <div>Personalization: {getPersonalizationLabel(item.personalization)}</div>
@@ -594,11 +637,7 @@ export default function App() {
               </div>
             </div>
 
-            {message ? (
-              <div className={`status-box ${status}`}>
-                {message}
-              </div>
-            ) : null}
+            {message ? <div className={`status-box ${status}`}>{message}</div> : null}
           </form>
         </div>
       </section>
