@@ -423,7 +423,6 @@ export default function App() {
               </div>
               <div className="hero-slideshow-text">
                 <strong>{PRODUCTS[currentSlide].name}</strong>
-                <span>From {money(PRODUCTS[currentSlide].basePrices.medium)}</span>
               </div>
             </div>
 
