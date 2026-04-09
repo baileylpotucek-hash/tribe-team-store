@@ -18,6 +18,21 @@ const PLAYER_OPTIONS = [
   'Ross',
 ];
 
+const PLAYER_T_LOGO_IMAGES = {
+  Asher: '/images/Asher T Logo.png',
+  Avila: '/images/Avila T Logo.png',
+  Bjostad: '/images/Bjostad T Logo.png',
+  Cooper: '/images/Cooper T Logo.png',
+  Dingman: '/images/Dingman T Logo.png',
+  Mercer: '/images/Mercer T Logo.png',
+  Nichols: '/images/Nichols T Logo.png',
+  Owens: '/images/Owens T Logo.png',
+  Palmer: '/images/Palmer T Logo.png',
+  Pineda: '/images/Pineda T Logo.png',
+  Potucek: '/images/Potucek T Logo.png',
+  Ross: '/images/Ross T Logo.png',
+};
+
 const PRODUCTS = [
   {
     id: 't-logo',
@@ -30,7 +45,7 @@ const PRODUCTS = [
   },
   {
     id: 't-logo-player',
-    name: 'T Logo Player Custom',
+    name: 'T Logo w/ Variation',
     image: '/images/T Logo Only w_ Variations.png',
     description: 'Columbia Blue T logo customized by player with name, number, or both.',
     basePrices: { small: 7, medium: 10, large: 14 },
@@ -146,12 +161,17 @@ function ProductCard({ product, onAdd }) {
   const unitPrice = (product.basePrices[size] ?? 0) + addOn;
   const itemTotal = unitPrice * quantity;
 
+  const displayImage =
+    product.playerSelection && selectedPlayer && PLAYER_T_LOGO_IMAGES[selectedPlayer]
+      ? PLAYER_T_LOGO_IMAGES[selectedPlayer]
+      : product.image;
+
   function handleAdd() {
     onAdd({
       cartId: makeCartId(),
       productId: product.id,
       name: product.name,
-      image: product.image,
+      image: displayImage,
       size,
       quantity,
       background,
@@ -175,7 +195,7 @@ function ProductCard({ product, onAdd }) {
   return (
     <div className="product-card">
       <div className="product-image-wrap">
-        <img src={product.image} alt={product.name} className="product-image" />
+        <img src={displayImage} alt={product.name} className="product-image" />
       </div>
 
       <div className="product-body">
