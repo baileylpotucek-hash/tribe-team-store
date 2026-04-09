@@ -240,126 +240,29 @@ function ProductCard({ product, onAdd }) {
 }
 
 export default function TribeTeamStoreWebsite() {
-  const [cart, setCart] = useState([]);
-  const [showOptions, setShowOptions] = useState(false);
-  const [buyerName, setBuyerName] = useState('');
-  const [buyerEmail, setBuyerEmail] = useState('');
-  const [buyerPhone, setBuyerPhone] = useState('');
-  const [playerName, setPlayerName] = useState('');
-  const [notes, setNotes] = useState('');
-  const [status, setStatus] = useState('idle');
-  const [message, setMessage] = useState('');
-
-  const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + item.total, 0), [cart]);
-  const cartCount = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
-
-  function addToCart(item) {
-    setCart((current) => [...current, { ...item, cartId: crypto.randomUUID() }]);
-    setShowOptions(true);
-  }
-
-  function removeFromCart(cartId) {
-    setCart((current) => current.filter((item) => item.cartId !== cartId));
-  }
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-
-    if (!cart.length) {
-      setStatus('error');
-      setMessage('Please add at least one decal before submitting your pre-order.');
-      return;
-    }
-
-    if (!buyerName || !buyerEmail || !buyerPhone) {
-      setStatus('error');
-      setMessage('Please complete your contact information.');
-      return;
-    }
-
-    const payload = {
-      submittedAt: new Date().toISOString(),
-      buyerName,
-      buyerEmail,
-      buyerPhone,
-      playerName,
-      notes,
-      total: cartTotal,
-      items: cart.map((item) => ({
-        name: item.name,
-        size: item.size,
-        background: item.background,
-        personalization: getPersonalizationLabel(item.personalization),
-        customName: item.customName,
-        customNumber: item.customNumber,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        total: item.total,
-      })),
-    };
-
-    if (GOOGLE_SCRIPT_URL === 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
-      setStatus('error');
-      setMessage('Add your Google Apps Script web app URL before using live submission.');
-      return;
-    }
-
-    try {
-      setStatus('loading');
-      setMessage('Submitting your pre-order...');
-
-      const response = await fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error('Submission failed.');
-      }
-
-      setStatus('success');
-      setMessage('Pre-order submitted successfully. We will follow up with confirmation and payment details.');
-      setCart([]);
-      setBuyerName('');
-      setBuyerEmail('');
-      setBuyerPhone('');
-      setPlayerName('');
-      setNotes('');
-    } catch (error) {
-      setStatus('error');
-      setMessage('Something went wrong while sending your order. Please try again.');
-    }
-  }
-
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      <section className="relative overflow-hidden border-b border-slate-800 bg-gradient-to-br from-slate-950 via-slate-950 to-sky-950/50">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_30%)]" />
-        <div className="relative mx-auto max-w-7xl px-6 py-20 md:py-28">
-          <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <section className="relative overflow-hidden border-b border-white/10 bg-gradient-to-br from-slate-950 via-slate-950 to-sky-950/40">
+        <div className="mx-auto max-w-7xl px-6 py-20 md:py-24">
+          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div>
               <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-sky-300">
                 Clearwater Tribe Baseball
               </p>
-              <h1 className="text-4xl font-black tracking-tight text-white md:text-6xl">
+              <h1 className="text-4xl font-black tracking-tight md:text-6xl">
                 Decals for players, families, and fans.
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 md:text-lg">
-                Welcome to the Clearwater Tribe team store. This pre-order page is built for custom decals and sticker options featuring team marks, player personalization, and fan favorites.
+                Welcome to the Clearwater Tribe team store. Browse decal options, add what you want to your cart,
+                and submit one clean pre-order at checkout.
               </p>
-
               <div className="mt-8 flex flex-wrap gap-3">
                 {TEAM_HIGHLIGHTS.map((item) => (
-                  <span
-                    key={item}
-                    className="rounded-full border border-sky-400/20 bg-sky-400/10 px-4 py-2 text-sm font-medium text-sky-100"
-                  >
+                  <span key={item} className="rounded-full border border-sky-400/20 bg-sky-400/10 px-4 py-2 text-sm font-medium text-sky-100">
                     {item}
                   </span>
                 ))}
               </div>
-
               <div className="mt-10 flex flex-wrap gap-4">
                 <button
                   type="button"
@@ -373,23 +276,20 @@ export default function TribeTeamStoreWebsite() {
                 >
                   See Options Now
                 </button>
-                <a
-                  href="#cart-section"
-                  className="rounded-2xl border border-slate-700 px-6 py-4 text-base font-semibold text-white transition hover:bg-white/5"
-                >
+                <a href="#cart-section" className="rounded-2xl border border-white/15 px-6 py-4 text-base font-semibold text-white transition hover:bg-white/5">
                   View Cart {cartCount ? `(${cartCount})` : ''}
                 </a>
               </div>
             </div>
 
-            <div className="rounded-[32px] border border-slate-800 bg-slate-900/60 p-5 shadow-2xl shadow-sky-950/20 backdrop-blur">
-              <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-[28px] border border-white/10 bg-white/5 p-5 shadow-2xl">
+              <div className="grid grid-cols-2 gap-4">
                 {PRODUCTS.slice(0, 4).map((product) => (
-                  <div key={product.id} className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-950/80">
-                    <div className="aspect-square bg-slate-950">
-                      <img src={product.image} alt={product.name} className="h-full w-full object-contain p-3" />
+                  <div key={product.id} className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900/80">
+                    <div className="aspect-square bg-slate-950 p-3">
+                      <img src={product.image} alt={product.name} className="h-full w-full object-contain" />
                     </div>
-                    <div className="p-4">
+                    <div className="p-3">
                       <div className="text-sm font-bold">{product.name}</div>
                       <div className="mt-1 text-xs text-slate-400">From {money(product.basePrices.medium)}</div>
                     </div>
@@ -409,11 +309,11 @@ export default function TribeTeamStoreWebsite() {
               <h2 className="mt-2 text-3xl font-black md:text-4xl">Choose your decal style</h2>
             </div>
             <p className="max-w-2xl text-sm leading-6 text-slate-300 md:text-base">
-              Add items to your cart first. After that, fill out your contact details once and submit your full pre-order.
+              Simple grid layout. Add items to your cart, then complete buyer details once at checkout.
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-6 lg:grid-cols-3">
             {PRODUCTS.map((product) => (
               <ProductCard key={product.id} product={product} onAdd={addToCart} />
             ))}
@@ -452,11 +352,7 @@ export default function TribeTeamStoreWebsite() {
                           </div>
                           <div className="text-right">
                             <div className="text-base font-bold text-white">{money(item.total)}</div>
-                            <button
-                              type="button"
-                              onClick={() => removeFromCart(item.cartId)}
-                              className="mt-2 text-xs font-semibold text-rose-300 hover:text-rose-200"
-                            >
+                            <button type="button" onClick={() => removeFromCart(item.cartId)} className="mt-2 text-xs font-semibold text-rose-300 hover:text-rose-200">
                               Remove
                             </button>
                           </div>
@@ -490,83 +386,41 @@ export default function TribeTeamStoreWebsite() {
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-300">Checkout</p>
             <h2 className="mt-2 text-3xl font-black">Submit your pre-order</h2>
             <p className="mt-3 text-sm leading-6 text-slate-300">
-              Complete this once after your cart is ready. The form can send directly to a Google Sheet through a Google Apps Script endpoint.
+              Complete your contact details once and send the full cart to your order sheet.
             </p>
 
             <div className="mt-8 grid gap-5 md:grid-cols-2">
               <label className="block md:col-span-2">
                 <span className="mb-2 block text-sm font-semibold text-slate-200">Parent / Buyer Name *</span>
-                <input
-                  value={buyerName}
-                  onChange={(e) => setBuyerName(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300"
-                  placeholder="Full name"
-                />
+                <input value={buyerName} onChange={(e) => setBuyerName(e.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300" placeholder="Full name" />
               </label>
-
               <label className="block">
                 <span className="mb-2 block text-sm font-semibold text-slate-200">Email *</span>
-                <input
-                  type="email"
-                  value={buyerEmail}
-                  onChange={(e) => setBuyerEmail(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300"
-                  placeholder="name@email.com"
-                />
+                <input type="email" value={buyerEmail} onChange={(e) => setBuyerEmail(e.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300" placeholder="name@email.com" />
               </label>
-
               <label className="block">
                 <span className="mb-2 block text-sm font-semibold text-slate-200">Phone *</span>
-                <input
-                  value={buyerPhone}
-                  onChange={(e) => setBuyerPhone(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300"
-                  placeholder="(555) 555-5555"
-                />
+                <input value={buyerPhone} onChange={(e) => setBuyerPhone(e.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300" placeholder="(555) 555-5555" />
               </label>
-
               <label className="block md:col-span-2">
                 <span className="mb-2 block text-sm font-semibold text-slate-200">Player Name</span>
-                <input
-                  value={playerName}
-                  onChange={(e) => setPlayerName(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300"
-                  placeholder="Player name if applicable"
-                />
+                <input value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300" placeholder="Player name if applicable" />
               </label>
-
               <label className="block md:col-span-2">
                 <span className="mb-2 block text-sm font-semibold text-slate-200">Notes</span>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={4}
-                  className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300"
-                  placeholder="Anything we should know about your order"
-                />
+                <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={4} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-300" placeholder="Anything we should know about your order" />
               </label>
             </div>
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              <button
-                type="submit"
-                className="rounded-2xl bg-sky-400 px-6 py-4 text-base font-semibold text-slate-950 transition hover:scale-[1.02]"
-              >
+              <button type="submit" className="rounded-2xl bg-sky-400 px-6 py-4 text-base font-semibold text-slate-950 transition hover:scale-[1.02]">
                 Submit Pre-Order
               </button>
               <div className="text-sm text-slate-400">Total: <span className="font-bold text-white">{money(cartTotal)}</span></div>
             </div>
 
             {message ? (
-              <div
-                className={`mt-5 rounded-2xl px-4 py-3 text-sm ${
-                  status === 'success'
-                    ? 'border border-emerald-400/30 bg-emerald-500/10 text-emerald-200'
-                    : status === 'loading'
-                    ? 'border border-sky-400/30 bg-sky-500/10 text-sky-200'
-                    : 'border border-rose-400/30 bg-rose-500/10 text-rose-200'
-                }`}
-              >
+              <div className={`mt-5 rounded-2xl px-4 py-3 text-sm ${status === 'success' ? 'border border-emerald-400/30 bg-emerald-500/10 text-emerald-200' : status === 'loading' ? 'border border-sky-400/30 bg-sky-500/10 text-sky-200' : 'border border-rose-400/30 bg-rose-500/10 text-rose-200'}`}>
                 {message}
               </div>
             ) : null}
