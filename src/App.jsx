@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import './styles.css';
 
 const GOOGLE_SCRIPT_URL =
-  'https://script.google.com/macros/s/AKfycbw1CO-C0jpM53SYdOgLQB11MftAos28QZ6wb5aaGMCYca-ceSTuHwrEjDbp7gQpOsPt0g/exec';
+  'https://script.google.com/macros/s/AKfycbzBOw1Feo2QaRb9CakHGc0oHMnFVNTf9vGQINomlUYOrGAA9iqRiYYLrFLNBLCNL6LzoQ/exec';
 
 const PLAYER_OPTIONS = [
   'Asher',
@@ -409,9 +409,12 @@ export default function App() {
       setStatus('loading');
       setMessage('Submitting your pre-order...');
 
+      const formBody = new URLSearchParams();
+      formBody.append('payload', JSON.stringify(payload));
+
       const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify(payload),
+        body: formBody,
       });
 
       const result = await response.json();
