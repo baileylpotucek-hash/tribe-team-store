@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import './styles.css';
 
 const GOOGLE_SCRIPT_URL =
-  'https://script.google.com/macros/s/AKfycbzBOw1Feo2QaRb9CakHGc0oHMnFVNTf9vGQINomlUYOrGAA9iqRiYYLrFLNBLCNL6LzoQ/exec';
+  'https://script.google.com/macros/s/AKfycbw1CO-C0jpM53SYdOgLQB11MftAos28QZ6wb5aaGMCYca-ceSTuHwrEjDbp7gQpOsPt0g/exec';
 
 const PLAYER_OPTIONS = [
   'Asher',
