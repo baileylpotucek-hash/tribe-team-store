@@ -431,6 +431,7 @@ export default function App() {
               Welcome to the Clearwater Tribe team store.
               Click the 'See Options Now' button to browse decal options,
               add what you want to your cart, and submit your pre-order at checkout.
+              If you have any issues, questions, or concerns, please reach out via text to 620-222-2517.
             </p>
 
             <div className="pill-row">
