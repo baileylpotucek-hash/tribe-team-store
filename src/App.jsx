@@ -25,7 +25,7 @@ const PRODUCTS = [
     name: 'T Logo Only',
     image: '/images/T Logo Only w_ Variations.png',
     description: 'Clean team logo decal.',
-    basePrices: { small: 5, medium: 8, large: 12 },
+    basePrices: { small: 2, medium: 3, large: 4 },
     personalization: false,
     badge: 'Team Favorite',
   },
@@ -34,7 +34,7 @@ const PRODUCTS = [
     name: 'T Logo w/ Variation',
     image: '/images/T Logo w_ Variation Example - Name + Number.png',
     description: 'Columbia Blue T logo customized by player with name, number, or both.',
-    basePrices: { small: 7, medium: 10, large: 14 },
+    basePrices: { small: 3, medium: 4, large: 5 },
     personalization: true,
     badge: 'Player Custom',
     fixedColor: 'Columbia Blue',
@@ -45,7 +45,7 @@ const PRODUCTS = [
     name: 'TRIBE w/ Bat',
     image: '/images/TRIBE w_ Bat.png',
     description: 'Bold wordmark decal with athletic styling.',
-    basePrices: { small: 6, medium: 9, large: 13 },
+    basePrices: { small: 3, medium: 4, large: 5 },
     personalization: false,
     badge: 'Classic',
   },
@@ -54,7 +54,7 @@ const PRODUCTS = [
     name: 'TRIBE w/ Feathers',
     image: '/images/TRIBE w_ Feathers.png',
     description: 'Script-style decal with feather detail.',
-    basePrices: { small: 6, medium: 9, large: 13 },
+    basePrices: { small: 3, medium: 4, large: 5 },
     personalization: false,
     badge: 'Popular',
   },
@@ -63,7 +63,7 @@ const PRODUCTS = [
     name: 'Tribe Skull',
     image: '/images/Tribe Skull.png',
     description: 'Mascot-style option for fans wanting something bolder.',
-    basePrices: { small: 7, medium: 10, large: 14 },
+    basePrices: { small: 3, medium: 4, large: 5 },
     personalization: false,
     badge: 'Bold',
   },
@@ -72,7 +72,7 @@ const PRODUCTS = [
     name: 'Solid Plate',
     image: '/images/Solid Plate w_ Name + Number.png',
     description: 'Home plate decal with name and/or number.',
-    basePrices: { small: 8, medium: 12, large: 16 },
+    basePrices: { small: 3, medium: 4, large: 5 },
     personalization: true,
     badge: 'Customizable',
   },
@@ -81,7 +81,7 @@ const PRODUCTS = [
     name: 'Transparent Plate',
     image: '/images/Transparent Plate w_ Name + Number.png',
     description: 'Transparent plate-style decal with name and/or number.',
-    basePrices: { small: 8, medium: 12, large: 16 },
+    basePrices: { small: 3, medium: 4, large: 5 },
     personalization: true,
     badge: 'Customizable',
   },
@@ -93,13 +93,11 @@ const SIZES = [
   { id: 'large', label: 'Large (7")' },
 ];
 
-const BACKGROUNDS = ['Die Cut', 'White Background', 'Black Background'];
-
 const PERSONALIZATION_OPTIONS = [
   { id: 'none', label: 'No personalization', price: 0 },
-  { id: 'name', label: 'Name only', price: 2 },
-  { id: 'number', label: 'Number only', price: 2 },
-  { id: 'name-number', label: 'Name + Number', price: 4 },
+  { id: 'name', label: 'Name only', price: 0 },
+  { id: 'number', label: 'Number only', price: 0 },
+  { id: 'name-number', label: 'Name + Number', price: 1 },
 ];
 
 const TEAM_HIGHLIGHTS = [
@@ -559,7 +557,6 @@ export default function App() {
 
                       <div className="cart-meta">
                         {item.selectedPlayer ? <div>Player: {item.selectedPlayer}</div> : null}
-                        <div>Background: {item.background}</div>
                         {item.selectedColor ? <div>Color: {item.selectedColor}</div> : null}
                         <div>Personalization: {getPersonalizationLabel(item.personalization)}</div>
                         {item.customName ? <div>Name: {item.customName}</div> : null}
