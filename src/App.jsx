@@ -143,7 +143,6 @@ function getPlayerVariationImage(player, personalization) {
 function ProductCard({ product, onAdd }) {
   const [size, setSize] = useState('medium');
   const [quantity, setQuantity] = useState(1);
-  const [background, setBackground] = useState('Die Cut');
   const [personalization, setPersonalization] = useState(
     product.playerSelection ? 'name-number' : 'none'
   );
@@ -173,7 +172,6 @@ function ProductCard({ product, onAdd }) {
       image: displayImage,
       size,
       quantity,
-      background,
       selectedColor: product.fixedColor || '',
       selectedPlayer,
       personalization,
@@ -184,7 +182,6 @@ function ProductCard({ product, onAdd }) {
     });
 
     setQuantity(1);
-    setBackground('Die Cut');
     setCustomName('');
     setCustomNumber('');
     setSelectedPlayer('');
@@ -227,17 +224,6 @@ function ProductCard({ product, onAdd }) {
               value={quantity}
               onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
             />
-          </label>
-
-          <label>
-            <span>Background</span>
-            <select value={background} onChange={(e) => setBackground(e.target.value)}>
-              {BACKGROUNDS.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
           </label>
 
           {product.playerSelection ? (
@@ -393,7 +379,6 @@ export default function App() {
         player: item.selectedPlayer || '',
         size: SIZES.find((option) => option.id === item.size)?.label ?? item.size,
         quantity: item.quantity,
-        background: item.background,
         color: item.selectedColor || '',
         personalization: getPersonalizationLabel(item.personalization),
         customName: item.customName,
@@ -443,8 +428,8 @@ export default function App() {
             <p className="eyebrow">Clearwater Tribe Baseball</p>
             <h1>Decals for players, families, and fans.</h1>
             <p className="hero-copy">
-              Welcome to the Clearwater Tribe team store. 
-              Click the 'See Options Now' Button to browse decal options, 
+              Welcome to the Clearwater Tribe team store.
+              Click the 'See Options Now' button to browse decal options,
               add what you want to your cart, and submit your pre-order at checkout.
             </p>
 
@@ -590,8 +575,8 @@ export default function App() {
             <p className="eyebrow">Checkout</p>
             <h2>Submit your pre-order</h2>
             <p className="section-copy">
-              Complete your details once and click Submit Pre-Order. 
-              We will receive out to collect payment at a later time. 
+              Complete your details once and click Submit Pre-Order.
+              We will reach out later to collect payment.
             </p>
 
             <div className="form-grid">
