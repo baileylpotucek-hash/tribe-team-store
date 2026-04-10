@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import './styles.css';
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBOw1Feo2QaRb9CakHGc0oHMnFVNTf9vGQINomlUYOrGAA9iqRiYYLrFLNBLCNL6LzoQ/exec';
+const GOOGLE_SCRIPT_URL =
+  'https://script.google.com/macros/s/AKfycbzBOw1Feo2QaRb9CakHGc0oHMnFVNTf9vGQINomlUYOrGAA9iqRiYYLrFLNBLCNL6LzoQ/exec';
 
 const PLAYER_OPTIONS = [
   'Asher',
@@ -404,24 +405,19 @@ export default function App() {
       })),
     };
 
-    if (GOOGLE_SCRIPT_URL === 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
-      setStatus('error');
-      setMessage('Add your Google Apps Script URL in App.jsx before using live submission.');
-      return;
-    }
-
     try {
       setStatus('loading');
       setMessage('Submitting your pre-order...');
 
       const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error('Request failed');
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Request failed');
       }
 
       setStatus('success');
@@ -434,7 +430,7 @@ export default function App() {
       setNotes('');
     } catch (error) {
       setStatus('error');
-      setMessage('Something went wrong while sending your order.');
+      setMessage(error.message || 'Something went wrong while sending your order.');
     }
   }
 
@@ -446,9 +442,8 @@ export default function App() {
             <p className="eyebrow">Clearwater Tribe Baseball</p>
             <h1>Decals for players, families, and fans.</h1>
             <p className="hero-copy">
-              Welcome to the Clearwater Tribe team store. 
-              Click the 'See Options Now' Button to browse decal options, 
-              add what you want to your cart, and submit your pre-order at checkout.
+              Welcome to the Clearwater Tribe team store. Browse decal options,
+              add what you want to your cart, and submit one clean pre-order at checkout.
             </p>
 
             <div className="pill-row">
@@ -513,7 +508,7 @@ export default function App() {
                 <h2>Choose your decal style</h2>
               </div>
               <p className="section-copy">
-                Select the decals you prefer and add to the cart.
+                Three across, simple to browse, and easy to add to cart.
               </p>
             </div>
 
